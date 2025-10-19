@@ -9,7 +9,7 @@
     <version>1.0.0</version>
     <packaging>jar</packaging>
 
-    <name>Evidencia JDBC - Felipe Sena</name>
+    <name>Evidencia BC - Felipe Sena</name>
     <description>Proyecto de evidencia con JDBC, CRUD, estándares y versionamiento.</description>
 
     <properties>
