@@ -47,5 +47,4 @@ java -cp "target\evidencia-felipe-sena-1.0.0.jar;target\lib\*" evidencia.felipe.
 La tabla `usuario` se crea automáticamente al iniciar.
 
 ## Notas
-- Los avisos SLF4J pueden ignorarse.
 - La carpeta `data/` está en `.gitignore` y no se sube al repositorio.
