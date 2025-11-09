@@ -1,50 +1,80 @@
-# Evidencia JDBC - Felipe Sena
+# Evidencia BC - Felipe Sena
 
-Proyecto Java, CRUD básico sobre la entidad .
+Aplicación web Java (WAR) con Servlets + JSP (Jakarta) y JDBC (SQLite). Proyecto listo para ejecutarse localmente con Jetty 11.
 
 ## Requisitos
-- Java JDK 17 o superior (probado con JDK 21).
-- Maven instalado y en PATH.
+- Java 17
+- Maven 3.9+
 
-Verifica:
-```powershell
-java -version
-mvn -v
+## Ejecutar en local (recomendado: Jetty 11)
+Jetty 11 usa Jakarta Servlet 5 y funciona bien con Java 17.
+
+- Compilar y ejecutar sin limpiar (evita bloqueos en Windows):
+```bash
+mvn -U -Dmaven.clean.skip=true package jetty:run
+```
+- Accede en el navegador:
+  - http://localhost:8080/
+  - http://localhost:8080/form?nombre=Ana&correo=ana%40mail.com
+
+## Estructura principal
+```
+src/
+  main/
+    java/
+      evidencia/felipe/sena/web/
+        FormularioServlet.java   # Servlet con GET y POST
+    resources/
+      application.properties
+      schema.sql
+    webapp/
+      index.jsp                  # Formulario (GET/POST)
+      WEB-INF/
+        web.xml                  # Descriptor Jakarta 5.0
+        views/
+          resultado.jsp          # Muestra datos con JSTL
 ```
 
-## Obtener el proyecto
-- Clona tu repo o descarga el ZIP.
-- Abre una terminal en el directorio del proyecto: `evidencia-felipe-sena/`
+## Endpoints
+- `GET /` → `index.jsp` (formularios GET/POST)
+- `GET /form?nombre=..&correo=..` → muestra `resultado.jsp`
+- `POST /form` → procesa formulario y muestra `resultado.jsp`
 
-## Configuración (opcional)
-Por defecto usa SQLite y crea la base en `./data/evidencia.db`.
-Puedes ajustar `src/main/resources/application.properties`:
-```properties
-jdbc.url=jdbc:sqlite:./data/evidencia.db
-jdbc.username=
-jdbc.password=
+## Dependencias clave
+- Jakarta Servlet API 5.0 (scope provided)
+- Jakarta JSP API 3.0 (scope provided)
+- JSTL Jakarta 2.0
+- SQLite JDBC
+
+## Notas sobre ejecución con Tomcat (opcional via Cargo)
+Este proyecto incluye configuración de Cargo para Tomcat 10, pero en Windows puede generar bloqueos de archivos dentro de `target/cargo/*` que impiden `mvn clean`.
+
+- Ejecutar:
+```bash
+mvn -U package cargo:run
+```
+- Detener:
+```bash
+mvn cargo:stop
+```
+- Si `mvn clean` falla con error de borrado de `target/cargo/.../*.jar`:
+  - Asegúrate de detener el contenedor (`mvn cargo:stop`).
+  - Cierra el Explorador de archivos en `target/`.
+  - Borra manualmente `target/cargo/installs/`.
+  - Luego sí: `mvn clean`.
+
+## Problemas comunes
+- 404 en `/`: verifica que Jetty esté corriendo y que accedes a `http://localhost:8080/`.
+- JSP no renderiza: asegúrate de usar Jetty 11 (Servlet 5) y `web.xml` con esquema 5.0.
+- `mvn clean` falla en Windows: ejecuta sin `clean` y limpia después de detener el contenedor.
+
+## Versionamiento
+El proyecto está preparado para control de versiones (Git). Recomendado:
+```bash
+git init
+git add .
+git commit -m "feat: webapp WAR con Servlets/JSP y Jetty 11"
 ```
 
-## Compilar
-```powershell
-mvn -q -DskipTests package
-```
-
-## Ejecutar (Windows PowerShell)
-El classpath debe ir entre comillas por el separador `;`:
-```powershell
-java -cp "target\evidencia-felipe-sena-1.0.0.jar;target\lib\*" evidencia.felipe.sena.app.Main
-```
-
-## Uso (menú CRUD)
-- 1) Crear usuario (nombre, email)
-- 2) Consultar por ID
-- 3) Listar usuarios
-- 4) Actualizar usuario
-- 5) Eliminar usuario
-- 0) Salir
-
-La tabla `usuario` se crea automáticamente al iniciar.
-
-## Notas
-- La carpeta `data/` está en `.gitignore` y no se sube al repositorio.
+## Licencia
+Uso académico.

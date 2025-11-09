@@ -7,7 +7,7 @@
     <groupId>evidencia.felipe.sena</groupId>
     <artifactId>evidencia-felipe-sena</artifactId>
     <version>1.0.0</version>
-    <packaging>jar</packaging>
+    <packaging>war</packaging>
 
     <name>Evidencia BC - Felipe Sena</name>
     <description>Proyecto de evidencia con JDBC, CRUD, estándares y versionamiento.</description>
@@ -16,6 +16,7 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <jetty11.version>11.0.20</jetty11.version>
     </properties>
 
     <dependencies>
@@ -31,6 +32,31 @@
             <artifactId>commons-lang3</artifactId>
             <version>3.14.0</version>
         </dependency>
+        <!-- API de Servlets (Jakarta EE 9 / Servlet 5) proporcionada por el contenedor -->
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>5.0.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- JSP API (Jakarta EE 9) -->
+        <dependency>
+            <groupId>jakarta.servlet.jsp</groupId>
+            <artifactId>jakarta.servlet.jsp-api</artifactId>
+            <version>3.0.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- JSTL (API + implementación) -->
+        <dependency>
+            <groupId>jakarta.servlet.jsp.jstl</groupId>
+            <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
+            <version>2.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.web</groupId>
+            <artifactId>jakarta.servlet.jsp.jstl</artifactId>
+            <version>2.0.0</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -44,18 +70,28 @@
                     <target>${maven.compiler.target}</target>
                 </configuration>
             </plugin>
+            <!-- Ejecutar localmente con Jetty 11 (Jakarta EE 9) -->
+            <plugin>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-maven-plugin</artifactId>
+                <version>${jetty11.version}</version>
+                <configuration>
+                    <webApp>
+                        <contextPath>/</contextPath>
+                        <war>${project.basedir}/src/main/webapp</war>
+                    </webApp>
+                    <httpConnector>
+                        <port>8080</port>
+                    </httpConnector>
+                </configuration>
+            </plugin>
+            <!-- Plugin WAR (opcional, Maven lo maneja por defecto) -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.3.0</version>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>3.4.0</version>
                 <configuration>
-                    <archive>
-                        <manifest>
-                            <addClasspath>true</addClasspath>
-                            <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>evidencia.felipe.sena.app.Main</mainClass>
-                        </manifest>
-                    </archive>
+                    <failOnMissingWebXml>false</failOnMissingWebXml>
                 </configuration>
             </plugin>
             <plugin>
@@ -76,6 +112,48 @@
                     </execution>
                 </executions>
             </plugin>
+            <!-- Ejecutar localmente con Cargo + Tomcat 10 (Jakarta) -->
+            <plugin>
+                <groupId>org.codehaus.cargo</groupId>
+                <artifactId>cargo-maven3-plugin</artifactId>
+                <version>1.10.10</version>
+                <configuration>
+                    <container>
+                        <containerId>tomcat10x</containerId>
+                        <type>installed</type>
+                        <artifactInstaller>
+                            <groupId>org.apache.tomcat</groupId>
+                            <artifactId>tomcat</artifactId>
+                            <version>10.1.30</version>
+                        </artifactInstaller>
+                    </container>
+                    <configuration>
+                        <type>standalone</type>
+                        <properties>
+                            <cargo.servlet.port>8080</cargo.servlet.port>
+                            <cargo.tomcat.manager>false</cargo.tomcat.manager>
+                        </properties>
+                    </configuration>
+                    <deployables>
+                        <deployable>
+                            <groupId>${project.groupId}</groupId>
+                            <artifactId>${project.artifactId}</artifactId>
+                            <type>war</type>
+                            <properties>
+                                <context>/</context>
+                            </properties>
+                        </deployable>
+                    </deployables>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.codehaus.cargo</groupId>
+                        <artifactId>cargo-core-uberjar</artifactId>
+                        <version>1.10.10</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
         </plugins>
     </build>
 </project>
+
